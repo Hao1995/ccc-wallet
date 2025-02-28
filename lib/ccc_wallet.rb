@@ -1,5 +1,6 @@
 require 'active_record'
 require 'logger'
+require "engine"
 require_relative 'models/user'
 require_relative 'models/wallet'
 
