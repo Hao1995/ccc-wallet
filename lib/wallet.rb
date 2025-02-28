@@ -1,6 +1,8 @@
 class Wallet < ActiveRecord::Base
   belongs_to :user
 
+  validates :balance, numericality: { greater_than_or_equal_to: 0 }
+
   def deposit(amount)
     raise ArgumentError, "Deposit amount must be positive" if amount <= 0
     update!(balance: balance + amount)

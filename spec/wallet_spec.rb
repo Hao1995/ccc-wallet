@@ -75,16 +75,16 @@ RSpec.describe Wallet, type: :model do
           wallet_a.withdraw(60.0)
           sleep(0.5)
           wallet_a.save!
+        rescue ActiveRecord::StaleObjectError
+          error_occurred = true
         end
       end
 
       thread_b = Thread.new do
-        begin
-          ActiveRecord::Base.transaction do
-            wallet_b = Wallet.find(wallet.id)
-            wallet_b.withdraw(70.0)
-            wallet_b.save!
-          end
+        ActiveRecord::Base.transaction do
+          wallet_b = Wallet.find(wallet.id)
+          wallet_b.withdraw(70.0)
+          wallet_b.save!
         rescue ActiveRecord::StaleObjectError
           error_occurred = true
         end
