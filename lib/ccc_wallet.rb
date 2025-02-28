@@ -1,15 +1,15 @@
 require 'active_record'
 require 'logger'
-require_relative 'user'
-require_relative 'wallet'
+require_relative 'models/user'
+require_relative 'models/wallet'
 
-# WalletApp is a simple centralized wallet system that allows users to:
+# CCCWallet is a simple centralized wallet system that allows users to:
 # - Create an account
 # - Deposit funds into their wallet
 # - Withdraw funds from their wallet
 # - Transfer funds to another user's wallet
 # - Check their current wallet balance
-class WalletApp
+class CCCWallet
   def create_user(params)
     User.create!(params.slice(:name, :email))
   end

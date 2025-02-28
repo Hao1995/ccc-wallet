@@ -1,6 +1,6 @@
 require 'spec_helper'
-require_relative '../lib/user'
-require_relative '../lib/wallet'
+require_relative '../../lib/models/user'
+require_relative '../../lib/models/wallet'
 
 RSpec.describe Wallet, type: :model do
   before(:each) do

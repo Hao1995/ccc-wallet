@@ -1,8 +1,8 @@
 require 'spec_helper'
-require_relative '../lib/wallet_app'
+require_relative '../lib/ccc_wallet'
 
-RSpec.describe WalletApp do
-  let(:app) { WalletApp.new }
+RSpec.describe CCCWallet do
+  let(:app) { CCCWallet.new }
   let(:user1) { app.create_user(name: 'Alice', email: "alice_#{SecureRandom.uuid}@example.com") }
   let(:user2) { app.create_user(name: 'Bob', email: "bob_#{SecureRandom.uuid}@example.com") }
 
