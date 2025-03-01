@@ -41,8 +41,13 @@ migrate --database wallet # `wallet` is changeable
 
 ## Thought process
 * Simplify the application by leveraging Rails `Active::Record` to operate with database and leverage built-in [optimistic locking](https://api.rubyonrails.org/classes/ActiveRecord/Locking/Optimistic.html).
+    * Sample Query: 
+    ```
+    UPDATE `wallets` SET `wallets`.`balance` = 40.0, `wallets`.`updated_at` = '2025-03-01 03:02:44.572360', `wallets`.`lock_version` = 2 WHERE `wallets`.`id` = 252 AND `wallets`.`lock_version` = 1`
+    ```
 * Use Rails Engine to separate the Wallet APP as an independent module.
     * When running `rails db:migrate`, we can seamlessly use the migrations from the package.
+* Use `bin/migrate` to support Non-Rails projects to migrate the database.
 * Use RSpec to maintain test easily.
 
 ## Project layout
@@ -55,4 +60,3 @@ How should reviewer view your code:
 
 ## Areas to be improved
 * Add linter(RuboCop)
-* Decouple from Rails (due to Rails Engine)

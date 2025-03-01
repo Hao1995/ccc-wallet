@@ -16,4 +16,6 @@ Gem::Specification.new do |spec|
   spec.bindir        = 'bin'
 
   spec.require_paths = ["lib"]
+
+  spec.add_development_dependency "rails", ">= 8.0.0"
 end

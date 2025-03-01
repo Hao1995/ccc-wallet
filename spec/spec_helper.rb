@@ -34,7 +34,7 @@ establish_connection_with_db_creation(db_config)
 
 # Run migrations programmatically
 migrations_path = File.expand_path('../../db/migrate', __FILE__)
-migration_context = ActiveRecord::MigrationContext.new(migrations_path, ActiveRecord::SchemaMigration)
+migration_context = ActiveRecord::MigrationContext.new(migrations_path)
 
 puts "Running migrations..."
 if ActiveRecord::VERSION::MAJOR >= 6
