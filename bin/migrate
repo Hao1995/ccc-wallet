@@ -46,8 +46,8 @@ end.parse!
 # Migrate
 ActiveRecord::Base.establish_connection(options)
 
-gem_migrations_path = File.expand_path('../db/migrate', __dir__)
-migration_context = ActiveRecord::MigrationContext.new(gem_migrations_path)
+migrations_path = File.expand_path('../db/migrate', __dir__)
+migration_context = ActiveRecord::MigrationContext.new(migrations_path)
 migration_context.up
 
 puts "Database migrated successfully."

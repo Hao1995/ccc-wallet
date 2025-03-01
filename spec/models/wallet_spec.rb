@@ -61,39 +61,23 @@ RSpec.describe Wallet, type: :model do
     it 'raises an error when transferring more than the available funds' do
       expect { wallet.transfer_to(recipient_wallet, 400.0) }.to raise_error(StandardError, /Insufficient funds/)
     end
-  end
 
-  describe 'optimistic locking' do
-    it 'raises an ActiveRecord::StaleObjectError when concurrent updates occur' do
-      wallet.deposit(100.0)
+    it 'handles concurrent transfers between two wallets' do
+      user_a = User.create!(name: 'User A', email: 'user_a@example.com')
+      user_b = User.create!(name: 'User B', email: 'user_b@example.com')
+      wallet_a = user_a.wallet
+      wallet_b = user_b.wallet
 
-      error_occurred = false
+      wallet_a.deposit(300.0)
+      wallet_b.deposit(300.0)
 
-      thread_a = Thread.new do
-        ActiveRecord::Base.transaction do
-          wallet_a = Wallet.find(wallet.id)
-          wallet_a.withdraw(60.0)
-          sleep(0.5)
-          wallet_a.save!
-        rescue ActiveRecord::StaleObjectError
-          error_occurred = true
-        end
-      end
+      threads = []
+      threads << Thread.new { wallet_a.transfer_to(wallet_b, 100.0) }
+      threads << Thread.new { wallet_b.transfer_to(wallet_a, 150.0) }
+      threads.each(&:join)
 
-      thread_b = Thread.new do
-        ActiveRecord::Base.transaction do
-          wallet_b = Wallet.find(wallet.id)
-          wallet_b.withdraw(70.0)
-          wallet_b.save!
-        rescue ActiveRecord::StaleObjectError
-          error_occurred = true
-        end
-      end
-
-      thread_a.join
-      thread_b.join
-
-      expect(error_occurred).to be true
+      expect(wallet_a.reload.balance.to_f).to eq(350.0) # 300 - 100 + 150 = 350
+      expect(wallet_b.reload.balance.to_f).to eq(250.0) # 300 + 100 - 150 = 250
     end
   end
 end

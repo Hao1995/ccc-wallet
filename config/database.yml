@@ -1,0 +1,14 @@
+default: &default
+  adapter: mysql2
+  host: mysql
+  port: 3306
+  username: root
+  password: password
+
+development:
+  <<: *default
+  database: ccc_wallet
+
+test:
+  <<: *default
+  database: ccc_wallet_test

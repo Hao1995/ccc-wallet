@@ -3,34 +3,20 @@ require 'logger'
 require 'active_record'
 require 'active_record/migration'
 
-# Database configuration using environment variables
-db_config = {
-  adapter:  'mysql2',
-  host:     ENV.fetch('MYSQL_HOST', '127.0.0.1'),
-  username: ENV.fetch('MYSQL_USERNAME', 'root'),
-  password: ENV.fetch('MYSQL_PASSWORD', 'password'),
-  database: ENV.fetch('MYSQL_TEST_DATABASE', 'wallet_test')
-}
+# Load the database configuration
+db_config = YAML.load_file("#{Dir.pwd}/config/database.yml", aliases: true)
+ActiveRecord::Base.configurations = db_config
 
-def establish_connection_with_db_creation(config)
-  begin
-    ActiveRecord::Base.establish_connection(config)
-    # Verify connection by accessing the connection
-    ActiveRecord::Base.connection
-  rescue ActiveRecord::NoDatabaseError
-    puts "Database #{config[:database]} not found. Creating..."
-    create_database(config)
-    ActiveRecord::Base.establish_connection(config)
-  end
-end
-
-def create_database(config)
-  system(%Q(mysql -h #{config[:host]} -u#{config[:username]} -p#{config[:password]} -e "CREATE DATABASE IF NOT EXISTS #{config[:database]};"))
+def establish_connection_with_db_creation
+  ActiveRecord::Base.establish_connection(:test)
+  migrations_path = File.expand_path('db/migrate', __dir__)
+  migration_context = ActiveRecord::MigrationContext.new(migrations_path)
+  migration_context.up
 end
 
 # Establish the connection (creates the DB if needed)
 ActiveRecord::Base.logger = Logger.new(STDOUT)
-establish_connection_with_db_creation(db_config)
+establish_connection_with_db_creation
 
 # Run migrations programmatically
 migrations_path = File.expand_path('../../db/migrate', __FILE__)
