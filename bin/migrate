@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+require 'optparse'
+require 'active_record'
+require 'ccc_wallet'
+
+# Default connection settings for MySQL
+options = {
+  adapter:  'mysql2',
+  host:     '127.0.0.1',
+  username: 'root',
+  password: 'password',
+  database: 'ccc_wallet',
+  port:     3306
+}
+
+# Parse command-line arguments for connection info
+OptionParser.new do |opts|
+  opts.banner = "Usage: migrate [options]"
+
+  opts.on("--host HOST", "MySQL host (default: localhost)") do |h|
+    options[:host] = h
+  end
+
+  opts.on("--username USERNAME", "MySQL username (default: root)") do |u|
+    options[:username] = u
+  end
+
+  opts.on("--password PASSWORD", "MySQL password (default: empty)") do |p|
+    options[:password] = p
+  end
+
+  opts.on("--database DATABASE", "MySQL database name (default: development)") do |d|
+    options[:database] = d
+  end
+
+  opts.on("--port PORT", Integer, "MySQL port (default: 3306)") do |port|
+    options[:port] = port
+  end
+
+  opts.on_tail("-h", "--help", "Show help") do
+    puts opts
+    exit
+  end
+end.parse!
+
+# Migrate
+ActiveRecord::Base.establish_connection(options)
+
+gem_migrations_path = File.expand_path('../db/migrate', __dir__)
+migration_context = ActiveRecord::MigrationContext.new(gem_migrations_path)
+migration_context.up
+
+puts "Database migrated successfully."

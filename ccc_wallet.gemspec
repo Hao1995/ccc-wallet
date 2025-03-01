@@ -11,9 +11,9 @@ Gem::Specification.new do |spec|
     "lib/**/*",
     "db/**/*",
   ]
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
 
-  spec.add_dependency 'rails', '>= 5.0'
+  spec.executables   = ['migrate']
+  spec.bindir        = 'bin'
+
+  spec.require_paths = ["lib"]
 end

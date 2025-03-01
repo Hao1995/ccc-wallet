@@ -1,6 +1,6 @@
 require 'active_record'
 
-class CreateUsersAndWalletsTable < ActiveRecord::Migration[6.1]
+class CreateUsersAndWalletsTable < ActiveRecord::Migration[8.0]
   def change
     create_table :users do |t|
       t.string :name, null: false
