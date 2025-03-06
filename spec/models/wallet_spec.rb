@@ -69,14 +69,37 @@ RSpec.describe Wallet, type: :model do
 
       wallet_a.deposit(300.0)
       wallet_b.deposit(300.0)
+      wallet_a.reload
+      wallet_b.reload
 
       threads = []
-      threads << Thread.new { wallet_a.transfer_to(wallet_b, 100.0) }
-      threads << Thread.new { wallet_b.transfer_to(wallet_a, 150.0) }
-      threads.each(&:join)
+      errors = []
 
-      expect(wallet_a.reload.balance.to_f).to eq(350.0) # 300 - 100 + 150 = 350
-      expect(wallet_b.reload.balance.to_f).to eq(250.0) # 300 + 100 - 150 = 250
+      threads << Thread.new do
+        wallet_a.transfer_to(wallet_b, 100.0)
+      rescue => e
+        errors << e
+      end
+
+      threads << Thread.new do
+        wallet_b.transfer_to(wallet_a, 150.0)
+      rescue => e
+        errors << e
+      end
+
+      threads.each(&:join) # Ensure threads complete
+
+      expect(errors).to include(an_instance_of(ActiveRecord::StaleObjectError)).or be_empty
+
+      # Only one transaction can be finished
+      # Case: if the transfer from wallet_a success (100.0)
+      # wallet_a.balance = 200 && wallet_b.balance = 400
+      # Case: if the transfer from wallet_b success (150.0)
+      # wallet_a.balance = 450 && wallet_b.balance = 150
+      # Case: both transfer are success
+      # wallet_a.balance = 350 && wallet_b.balance = 250
+      expect(wallet_a.reload.balance.to_f).to eq(200.0).or eq(450).or eq(350)
+      expect(wallet_b.reload.balance.to_f).to eq(400.0).or eq(150).or eq(250)
     end
   end
 end

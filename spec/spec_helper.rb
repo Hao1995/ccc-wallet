@@ -16,7 +16,15 @@ def establish_connection_with_db_creation
 end
 
 # Establish the connection (creates the DB if needed)
-ActiveRecord::Base.logger = Logger.new(STDOUT)
+# ActiveRecord::Base.logger = Logger.new(STDOUT)
+logger = Logger.new(STDOUT)
+logger.formatter = proc do |severity, timestamp, progname, msg|
+  formatted_time = timestamp.strftime("%Y-%m-%d %H:%M:%S.%L") # Adds milliseconds
+  thread_id = "Thread-#{Thread.current.object_id}"
+  "[#{formatted_time}] #{severity} #{thread_id} [ActiveRecord]: #{msg}\n"
+end
+ActiveRecord::Base.logger = logger
+
 establish_connection_with_db_creation
 
 # Run migrations programmatically
