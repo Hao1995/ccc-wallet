@@ -2,6 +2,7 @@ require 'bundler/setup'
 require 'logger'
 require 'active_record'
 require 'active_record/migration'
+require 'database_cleaner/active_record'
 
 # Load the database configuration
 db_config = YAML.load_file("#{Dir.pwd}/config/database.yml", aliases: true)
@@ -29,3 +30,6 @@ else
   ActiveRecord::Migrator.migrate(ActiveRecord::Migrator.migrations_paths)
 end
 puts "Migrations complete."
+
+# DatabaseCleaner
+DatabaseCleaner.strategy = :truncation

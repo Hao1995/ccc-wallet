@@ -3,9 +3,8 @@ require_relative '../../lib/models/user'
 require_relative '../../lib/models/wallet'
 
 RSpec.describe Wallet, type: :model do
-  before(:each) do
-    Wallet.delete_all
-    User.delete_all
+  before do
+    DatabaseCleaner.clean
   end
 
   let(:user) { User.create!(name: 'Test User', email: 'test@example.com') }

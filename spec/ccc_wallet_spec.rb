@@ -7,6 +7,7 @@ RSpec.describe CCCWallet do
   let(:user2) { app.create_user(name: 'Bob', email: "bob_#{SecureRandom.uuid}@example.com") }
 
   before do
+    DatabaseCleaner.clean
     user1.wallet.update(balance: 100.0)
     user2.wallet.update(balance: 50.0)
   end
