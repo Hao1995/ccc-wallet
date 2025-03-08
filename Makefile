@@ -1,4 +1,4 @@
-.PHONY: build, install
+.PHONY: build, install, up-infra, down-infra, up, down, bash, db-migrate, test, app
 
 build:
 	gem build ccc_wallet.gemspec
@@ -17,6 +17,9 @@ up:
 
 down:
 	docker-compose --profile app down
+
+bash:
+	docker-compose exec app bash
 
 db-migrate:
 	docker-compose exec app bash -c "bundle exec rake db:migrate"

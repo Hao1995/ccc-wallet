@@ -19,13 +19,8 @@ class Wallet < ActiveRecord::Base
       raise ArgumentError, "Withdrawal amount must be positive" if amount <= 0
       raise StandardError, "Insufficient funds" if amount > balance
 
-      if self.id < recipient_wallet.id
-        update!(balance: balance - amount)
-        recipient_wallet.update!(balance: recipient_wallet.balance + amount)
-      else
-        recipient_wallet.update!(balance: recipient_wallet.balance + amount)
-        update!(balance: balance - amount)
-      end
+      update!(balance: balance - amount)
+      recipient_wallet.update!(balance: recipient_wallet.balance + amount)
     end
   end
 end

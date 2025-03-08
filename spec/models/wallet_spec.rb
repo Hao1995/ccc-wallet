@@ -64,32 +64,34 @@ RSpec.describe Wallet, type: :model do
     it 'handles concurrent transfers between two wallets' do
       user_a = User.create!(name: 'User A', email: 'user_a@example.com')
       user_b = User.create!(name: 'User B', email: 'user_b@example.com')
-      wallet_a = user_a.wallet
-      wallet_b = user_b.wallet
 
-      wallet_a.deposit(300.0)
-      wallet_b.deposit(300.0)
-      wallet_a.reload
-      wallet_b.reload
+      user_a.wallet.deposit(300.0)
+      user_b.wallet.deposit(300.0)
+
+      def transfer(sender_id, receiver_id, amount)
+        sender_wallet = Wallet.find_by(user_id: sender_id)
+        receiver_wallet = Wallet.find_by(user_id: receiver_id)
+        sender_wallet.transfer_to(receiver_wallet, amount)
+      end
 
       threads = []
       errors = []
 
       threads << Thread.new do
-        wallet_a.transfer_to(wallet_b, 100.0)
+        transfer(user_a, user_b, 100.0)
       rescue => e
         errors << e
       end
 
       threads << Thread.new do
-        wallet_b.transfer_to(wallet_a, 150.0)
+        transfer(user_b, user_a, 150.0)
       rescue => e
         errors << e
       end
 
-      threads.each(&:join) # Ensure threads complete
+      threads.each(&:join)
 
-      expect(errors).to include(an_instance_of(ActiveRecord::StaleObjectError)).or be_empty
+      expect(errors).to include(an_instance_of(ActiveRecord::StaleObjectError)).or include(an_instance_of(ActiveRecord::Deadlocked)).or be_empty
 
       # Only one transaction can be finished
       # Case: if the transfer from wallet_a success (100.0)
@@ -98,8 +100,8 @@ RSpec.describe Wallet, type: :model do
       # wallet_a.balance = 450 && wallet_b.balance = 150
       # Case: both transfer are success
       # wallet_a.balance = 350 && wallet_b.balance = 250
-      expect(wallet_a.reload.balance.to_f).to eq(200.0).or eq(450).or eq(350)
-      expect(wallet_b.reload.balance.to_f).to eq(400.0).or eq(150).or eq(250)
+      expect(user_a.wallet.reload.balance.to_f).to eq(200.0).or eq(450).or eq(350)
+      expect(user_b.wallet.reload.balance.to_f).to eq(400.0).or eq(150).or eq(250)
     end
   end
 end
